@@ -20,6 +20,7 @@ configure_site() {
         $virtualenv_path/bin/python manage.py syncdb --noinput --migrate; \
         $virtualenv_path/bin/python manage.py createsuperuser --noinput --username=$admin_user --email=$admin_email; \
         $virtualenv_path/bin/python manage.py collectstatic --noinput; \
+        $virtualenv_path/bin/python manage.py loaddata fixtures/initial_data.json; \
         )"
 	
 }
