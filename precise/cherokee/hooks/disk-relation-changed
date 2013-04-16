@@ -47,7 +47,7 @@ site_name=`relation-get site_name`
 python_path=`relation-get python_path`
 webroot=`relation-get webroot`
 wsgi_file=`relation-get wsgi_file`
-virtualenv=`relation-get virtualenv_path`
+virtualenv=`relation-get virtualenv`
 
 CHEROKEE_CONFIG="/etc/cherokee/cherokee.conf"
 juju-log "Writing config file $CHEROKEE_CONFIG"
