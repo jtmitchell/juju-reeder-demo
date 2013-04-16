@@ -1,0 +1,29 @@
+#!/bin/bash
+
+apt-get update
+sudo apt-get install -qqy debconf-utils python-mysqldb uuid augeas-tools augeas-lenses pwgen dnsutils || exit 1
+
+PASSFILE=/var/lib/juju/mysql.passwd
+if ! [ -f $PASSFILE ] ; then
+  uuid > $PASSFILE
+fi
+PASSWORD=`cat $PASSFILE`
+
+echo mysql-server-5.1 mysql-server/root_password password $PASSWORD | debconf-set-selections
+echo mysql-server-5.1 mysql-server/root_password_again password $PASSWORD | debconf-set-selections
+
+DEBIAN_FRONTEND=noninteractive apt-get -y install -qq mysql-server
+
+unit_id=`echo $JUJU_UNIT_NAME | cut -d/ -f2`
+
+# On slaves, this gets overwritten
+if [ ! -f /var/lib/juju/i.am.a.slave ] ; then
+    cat > /etc/mysql/conf.d/binlog.cnf <<EOF
+[mysqld]
+server_id = $unit_id
+log_bin = /var/log/mysql/mysql-bin.log
+EOF
+fi
+
+service mysql stop || :
+service mysql start

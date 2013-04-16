@@ -1,0 +1,12 @@
+name: proxy
+summary: "fast and reliable load balancing reverse proxy"
+description: 
+  Combination of haproxy and pound to handle reverse proxy and ssl.
+requires:
+  reverseproxy:
+    interface: http
+provides:
+  website:
+    interface: http
+  munin:
+    interface: munin-node

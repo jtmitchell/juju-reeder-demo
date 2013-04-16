@@ -1,0 +1,47 @@
+#!/bin/bash
+
+juju-log "Configure database"
+set -eux # -x for verbose logging to juju debug-log
+hooksdir=$PWD
+user=`relation-get user`
+password=`relation-get password`
+host=`relation-get host`
+# All values are set together, so checking on a single value is enough
+# If $user is not set, DB is still setting itself up, we exit awaiting next run
+[ -z "$user" ] && exit 0
+
+db_name=`config-get db_name`
+
+service_name=`config-get service_name`
+export_root=`config-get storage_root`
+export_path="$export_root/$service_name"
+webroot=`config-get webroot`
+django_webroot="$export_path/$webroot"
+export_owner=`config-get export_owner`
+virtualenv_path=`config-get virtualenv_path`
+
+juju-log "Add database login to the configuration file"
+[ -f $django_webroot/local_settings.py ] || cp $django_webroot/local_settings-sample.py $django_webroot/local_settings.py
+chown $export_owner.$export_owner $django_webroot/local_settings.py
+
+sed --in-place \
+  -e "s/'NAME':.*/'NAME': '$db_name',/" \
+  -e "s/'USER':.*/'USER': '$user',/" \
+  -e "s/'PASSWORD'.*/'PASSWORD': '$password',/" \
+  -e "s/'HOST'.*/'HOST': '$host',/" \
+  -e "s/'ENGINE'.*/'ENGINE': 'django.db.backends.mysql',/" \
+  $django_webroot/local_settings.py
+
+HAS_DB=`mysql -u$user -p$password -h$host --skip-column-names -e "SHOW DATABASES LIKE '$db_name'"`
+if [ "$HAS_DB" == "$db_name" ]; then
+    mysqladmin -u$user -p$password -h$host -f drop $db_name
+fi
+echo "create database $db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;" \
+  | mysql -u$user -p$password -h$host
+#mysqladmin -u$user -p$password -h$host create $db_name
+
+source lib/utility.sh
+configure_site
+
+
+

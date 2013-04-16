@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -ex # -x for verbose logging to juju debug-log
+
+juju-log "Installing cherokee"
+#add-apt-repository ppa:cherokee-webserver/ppa
+#add-apt-repository ppa:uwsgi/release
+apt-get update && apt-get -y install uwsgi-plugin-python \
+  cherokee libcherokee-mod-libssl \
+  python-memcache \
+  mysql-client nfs-common
+
+sed -i -e "s/NEED_IDMAPD.*/NEED_IDMAPD=yes/" /etc/default/nfs-common
+
+# Cherokee configuration is done in the NFS relation hook
+CHEROKEE_CONFIG="/etc/cherokee/cherokee.conf"
+chmod 0644 $CHEROKEE_CONFIG
+cp config/coming_soon.html /var/www/coming_soon.html
+

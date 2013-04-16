@@ -1,0 +1,12 @@
+name: cherokee
+summary: "Cherokee server for django apps"
+description: |
+  Installs and configures cherokee to run a django site
+
+  The site is stored on NFS shared disk, and uses MySQL
+requires:
+  disk:
+    interface: mount
+provides:
+  website:
+    interface: http

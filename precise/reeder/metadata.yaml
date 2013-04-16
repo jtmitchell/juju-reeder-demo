@@ -1,0 +1,17 @@
+name: reeder
+summary: Shared storage for django website
+description: |
+  Installs and configures an nfs4 daemon with
+  the standard accompanying services, portmapd
+  and idmapd.
+
+  This charm will also do the following:
+  * install a django virtualenv based on pip-requirements file.
+  * get the website code from a tar file.
+
+requires:
+  db:
+    interface: mysql-root
+provides:
+  nfs:
+    interface: mount

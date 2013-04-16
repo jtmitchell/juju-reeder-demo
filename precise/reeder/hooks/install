@@ -1,0 +1,45 @@
+#!/bin/bash
+set -e
+set -x
+
+mkdir -p /etc/exports.d
+#TODO fix oneiric package... install fails without this
+
+# enable the multiverse repository
+sed -i -e "s/^# \(deb .* multiverse\)/\1/" /etc/apt/sources.list
+
+juju-log "Install packages"
+apt-get update && apt-get -y install -qq nfs-kernel-server nfs-common \
+	mysql-client \
+	libmysqlclient-dev python-dev \
+	python-virtualenv python-pip unzip sqlite3 \
+	wget
+
+juju-log "Upgrade version of pip"
+pip install pip --upgrade
+
+juju-log "Configure NFS"
+
+sed -i -e "s/NEED_IDMAPD.*/NEED_IDMAPD=yes/" /etc/default/nfs-common
+service idmapd restart || service idmapd start
+
+
+service_name=`config-get service_name`
+export_root=`config-get storage_root`
+export_path="$export_root/$service_name"
+export_owner=`config-get export_owner`
+
+source lib/utility.sh
+
+[ -d $export_path ] || mkdir -p $export_path
+chown -R $export_owner.$export_owner $export_path
+chmod og+rx $export_root
+
+grep $export_owner /etc/passwd || useradd -m --user-group $export_owner
+
+install_virtualenv
+install_source
+
+chown -R $export_owner.$export_owner $export_path
+
+service idmapd restart || service idmapd start

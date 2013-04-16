@@ -1,0 +1,57 @@
+options:
+  storage_root:
+    type: string
+    default: /srv/data
+    description: The root path where exported directories will be created
+  export_owner:
+    type: string
+    default: ubuntu
+    description: The user who owns the export directories
+  export_options:
+    type: string
+    default: rw,sync,no_root_squash,no_all_squash
+    description: The default export options
+  db_name:
+    type: string
+    default: website
+    description: Name of the database
+  env_sitename:
+    type: string
+    default: localhost
+    description: Name for the site (should match DNS name)
+  service_name:
+    type: string
+    default: reeder
+    description: Service name (directory) for the NFS export
+  project_name:
+    type: string
+    default: reeder
+    description: Toplevel of the source and webroot
+  python_path:
+    type: string
+    default: reeder
+    description: Python path - should be project_name + 'src'
+  webroot:
+    type: string
+    default: reeder/reeder
+    description: Name for the webroot - should be project_name + 'src' + module name
+  virtualenv_path:
+    type: string
+    default: virtualenv/reeder
+    description: Path for the virtualenv
+  wsgi_file:
+    type: string
+    default: reeder.wsgi
+    description: WSGI file for running the application
+  admin_user:
+    type: string
+    default: admin
+    description: Login name for the new admin user
+  admin_email:
+    type: string
+    default: admin@mailinator.com
+    description: Email address for the admin user
+  source_url:
+    type: string
+    description: url for the tgz source file
+    default: https://dl.dropboxusercontent.com/u/3429874/reeder.tgz

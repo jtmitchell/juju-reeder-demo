@@ -1,0 +1,39 @@
+#!/bin/bash
+set -ue
+
+remote_ip=`relation-get private-address`
+if [ -z "$remote_ip" ] ; then
+    juju-log "wait for related service to start"
+    exit 0
+fi
+
+#service_name=${JUJU_REMOTE_UNIT/\/*/}
+service_name=`config-get service_name`
+export_root=`config-get storage_root`
+export_path="$export_root/$service_name"
+export_owner=`config-get export_owner`
+site_name=`config-get env_sitename`
+python_path=`config-get python_path`
+webroot=`config-get webroot`
+wsgi_file=`config-get wsgi_file`
+virtualenv_path=`config-get virtualenv_path`
+
+create_export_path() {
+  umask 002
+  mkdir -p $export_path
+  chown $export_owner.$export_owner $export_path
+}
+[ -d $export_path ] || create_export_path
+
+export_options=`config-get export_options`
+exportfs -o $export_options $remote_ip:$export_path # ok to call repeatedly
+#TODO add /etc/exports.d/service_name so the export survives reboots...
+
+relation-set fstype="nfs" \
+             mountpoint="$export_path" \
+             options="rw,hard,intr,rsize=8192,wsize=8192,nfsver=3,tcp" \
+             site_name="$site_name" \
+             python_path="$python_path" \
+             webroot="$webroot" \
+             wsgi_file="$wsgi_file" \
+             virtualenv="$virtualenv_path"

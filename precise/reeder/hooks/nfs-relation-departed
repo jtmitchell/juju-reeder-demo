@@ -1,0 +1,10 @@
+#!/bin/bash
+set -ue
+
+remote_ip=`relation-get private-address`
+#service_name=${JUJU_REMOTE_UNIT/\/*/}
+service_name=`config-get service_name`
+export_root=`config-get export_root`
+export_path="$export_root/$service_name"
+
+exportfs -u $remote_ip:$export_path 

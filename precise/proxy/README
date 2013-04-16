@@ -1,0 +1,8 @@
+This charm is based on the haproxy charm.
+
+It adds the pound reverse-proxy to handle SSL.
+
+TODO:
+- remove the ssl cert from the config, and get it from S3
+
+

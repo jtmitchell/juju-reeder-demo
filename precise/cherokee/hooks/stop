@@ -1,0 +1,5 @@
+#!/bin/bash
+
+juju-log "Stopping cherokee server"
+/etc/init.d/cherokee stop
+
